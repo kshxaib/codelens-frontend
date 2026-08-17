@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route, Navigate} from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import useAuthStore from "./store/authStore";
+import Repositories from "./pages/Repositories";
+import Repository from "./pages/Repository";
 
 function App() {
   const getCurrentUser = useAuthStore(
@@ -19,6 +21,9 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />}/>
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/repositories" element={<Repositories />} />
+        <Route path="/repository/:id" element={<Repository />} />
+
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

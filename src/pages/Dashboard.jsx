@@ -60,7 +60,12 @@ function Dashboard() {
 
         <div className="mt-8 rounded-xl border border-gray-800 bg-gray-900 p-6">
           <h3 className="text-lg font-semibold"> My Repositories </h3>
-          <p className="mt-2 text-sm text-gray-400"> Repository management will be added in Phase 3. </p>
+          <button
+            onClick={() => navigate("/repositories")}
+            className="mt-6 rounded-lg bg-white px-5 py-3 font-medium text-black hover:bg-gray-200"
+          >
+            View My Repositories
+          </button>
         </div>
       </main>
     </div>
