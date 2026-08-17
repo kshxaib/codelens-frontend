@@ -6,6 +6,7 @@ const useRepositoryStore = create((set) => ({
   loading: false,
   error: null,
 
+  // Get all repositories from backend
   fetchRepositories: async () => {
     set({loading: true, error: null});
 
@@ -19,6 +20,7 @@ const useRepositoryStore = create((set) => ({
     }
   },
 
+  // Add repository using GitHub URL
   addRepository: async (url) => {
     const { data } = await api.post("/api/repositories/add",{ url });
 
@@ -29,6 +31,7 @@ const useRepositoryStore = create((set) => ({
     return data;
   },
 
+  // Remove repository from current user's access
   removeRepository: async (repositoryId) => {
     await api.delete(
       `/api/repositories/${repositoryId}`
@@ -40,6 +43,56 @@ const useRepositoryStore = create((set) => ({
           (repo) => repo.id !== repositoryId
         ),
     }));
+  },
+
+  // Index repository 
+  indexRepository: async (repositoryId) => {
+
+    // Immediately show indexing state in UI
+    set((state) => ({
+      repositories: state.repositories.map((repo) => repo.id === repositoryId ? { ...repo, index_status: "indexing" } : repo),
+    }));
+
+    try {
+      const { data } = await api.post(
+        `/api/repositories/${repositoryId}/index`
+      );
+ 
+      // Backend response ke according repository update
+      set((state) => ({
+        repositories:
+          state.repositories.map((repo) =>
+            repo.id === repositoryId
+              ? {
+                  ...repo,
+                  index_status: data.status,
+                  file_count: data.files_scanned,
+                  symbol_count: data.symbols_found,
+                  last_indexed_commit: data.commit_sha,
+                }
+              : repo
+          ),
+      }));
+
+      return data;
+
+    } catch (error) {
+
+      // Indexing fail hua to failed state show karo
+      set((state) => ({
+        repositories:
+          state.repositories.map((repo) =>
+            repo.id === repositoryId
+              ? {
+                  ...repo,
+                  index_status: "failed",
+                }
+              : repo
+          ),
+      }));
+
+      throw error;
+    }
   },
 }));
 
