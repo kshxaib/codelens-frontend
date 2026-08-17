@@ -1,40 +1,25 @@
-import { useEffect, useState } from "react";
-import { getCurrentUser, logout } from "../services/api";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-function Dashboard() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+import useAuthStore from "../store/authStore";
 
+function Dashboard() {
   const navigate = useNavigate();
 
+  const user = useAuthStore((state) => state.user);
+  const loading = useAuthStore((state) => state.loading);
+  const logout = useAuthStore((state) => state.logout);
+
   useEffect(() => {
-    async function loadUser() {
-      try {
-        const currentUser = await getCurrentUser();
-
-        setUser(currentUser);
-      } catch {
-        navigate("/login");
-      } finally {
-        setLoading(false);
-      }
+    if (!loading && !user) {
+      navigate("/login", { replace: true });
     }
+  }, [loading, user, navigate]);
 
-    loadUser();
-  }, [navigate]);
-
-
-  async function handleLogout() {
-    try {
-      await logout();
-
-      navigate("/login");
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login", { replace: true });
+  };
 
   if (loading) {
     return (
@@ -44,30 +29,19 @@ function Dashboard() {
     );
   }
 
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-
       <header className="border-b border-gray-800">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-
-          <h1 className="text-xl font-bold">
-            CodeLens
-          </h1>
+          <h1 className="text-xl font-bold"> CodeLens </h1>
 
           <div className="flex items-center gap-4">
-
-            {user?.avatar_url && (
-              <img
-                src={user.avatar_url}
-                alt={user.username}
-                className="h-9 w-9 rounded-full"
-              />
-            )}
-
-            <span className="text-sm text-gray-300">
-              {user?.username}
-            </span>
+            <img src={user.avatar_url} alt={user.username} className="h-9 w-9 rounded-full" />
+            <span className="text-sm text-gray-300"> {user.username} </span>
 
             <button
               onClick={handleLogout}
@@ -75,38 +49,20 @@ function Dashboard() {
             >
               Logout
             </button>
-
           </div>
 
         </div>
       </header>
 
-
       <main className="mx-auto max-w-7xl px-6 py-10">
-
-        <h2 className="text-3xl font-bold">
-          Welcome, {user?.username}
-        </h2>
-
-        <p className="mt-2 text-gray-400">
-          Select a repository to start understanding your codebase.
-        </p>
-
+        <h2 className="text-3xl font-bold"> Welcome, {user.username} </h2>
+        <p className="mt-2 text-gray-400"> Select a repository to start understanding your codebase. </p>
 
         <div className="mt-8 rounded-xl border border-gray-800 bg-gray-900 p-6">
-
-          <h3 className="text-lg font-semibold">
-            My Repositories
-          </h3>
-
-          <p className="mt-2 text-sm text-gray-400">
-            Repository management will be added in Phase 3.
-          </p>
-
+          <h3 className="text-lg font-semibold"> My Repositories </h3>
+          <p className="mt-2 text-sm text-gray-400"> Repository management will be added in Phase 3. </p>
         </div>
-
       </main>
-
     </div>
   );
 }

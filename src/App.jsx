@@ -1,28 +1,28 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate} from "react-router-dom";
 
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import useAuthStore from "./store/authStore";
 
-const App = () => {
-  const [backendStatus, setBackendStatus] = useState("Checking....")
+function App() {
+  const getCurrentUser = useAuthStore(
+    (state) => state.getCurrentUser
+  );
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/health")
-      .then((response) => response.json())
-      .then((data) => setBackendStatus(data.status))
-      .catch(() => setBackendStatus("Backend Unavailable"))
-  }, [])
-
+    getCurrentUser();
+  }, [getCurrentUser]);
 
   return (
-    <div>
-      <h1>CodeLens</h1>
-
-      <p>AI-Powered Codebase Intelligence Copilot</p>
-
-      <p>
-        Backend status: <strong>{backendStatus}</strong>
-      </p>
-    </div>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />}/>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
