@@ -94,6 +94,13 @@ const useRepositoryStore = create((set) => ({
       throw error;
     }
   },
+
+  // Ask a question about a repository
+  askRepository: async (repositoryId, question) => {
+    const { data } = await api.post(`/api/repositories/${repositoryId}/ask`,{question});
+
+    return data;
+  },
 }));
 
 export default useRepositoryStore;
