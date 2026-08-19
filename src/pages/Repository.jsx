@@ -11,12 +11,6 @@ function Repository() {
 
   const [indexError, setIndexError] = useState("");
 
-  // Chat state
-  const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState(null);
-  const [asking, setAsking] = useState(false);
-  const [askError, setAskError] = useState("");
-
   const user = useAuthStore((state) => state.user);
 
   const repositories = useRepositoryStore((state) => state.repositories);
@@ -47,33 +41,6 @@ function Repository() {
       await indexRepository(Number(id));
     } catch (error) {
       setIndexError(error.response?.data?.detail || "Repository indexing failed");
-    }
-  };
-
-
-  const handleAsk = async (event) => {
-    event.preventDefault();
-
-    const trimmedQuestion = question.trim();
-
-    if (!trimmedQuestion) return;
-
-    setAsking(true);
-    setAskError("");
-    setAnswer(null);
-
-    try {
-      const result = await askRepository(Number(id), trimmedQuestion);
-
-      setAnswer(result);
-
-    } catch (error) {
-      setAskError(
-        error.response?.data?.detail || "Failed to get an answer"
-      );
-
-    } finally {
-      setAsking(false);
     }
   };
 
