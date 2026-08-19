@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import useAuthStore from "./store/authStore";
 import Repositories from "./pages/Repositories";
 import Repository from "./pages/Repository";
+import Chat from "./pages/Chat";
 
 function App() {
   const getCurrentUser = useAuthStore(
@@ -23,6 +24,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/repositories" element={<Repositories />} />
         <Route path="/repository/:id" element={<Repository />} />
+        <Route path="/chat" element={<Chat />} />
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
