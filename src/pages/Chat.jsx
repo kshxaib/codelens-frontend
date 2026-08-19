@@ -1,18 +1,25 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import useAuthStore from "../store/authStore";
 import useRepositoryStore from "../store/repositoryStore";
+
+import MessageBubble from "../components/chat/MessageBubble";
+import ChatInput from "../components/chat/ChatInput";
 
 
 function Chat() {
   const navigate = useNavigate();
 
+
+  const [searchParams] = useSearchParams();
+  const repositoryFromUrl = searchParams.get("repository");
+
   const user = useAuthStore((state) => state.user);
   const repositories = useRepositoryStore((state) => state.repositories);
   const fetchRepositories = useRepositoryStore((state) => state.fetchRepositories);
 
-  const [repositoryId, setRepositoryId] = useState("");
+  const [repositoryId, setRepositoryId] = useState(repositoryFromUrl || "");
 
   const [messages, setMessages] = useState([]);
   const [question, setQuestion] = useState("");
@@ -141,7 +148,7 @@ function Chat() {
 
     fetchRepositories();
 
-  }, [user, navigate, fetchRepositories]);
+  }, [user, navigate, repositories.length, fetchRepositories]);
 
 
   useEffect(() => {
@@ -254,130 +261,35 @@ function Chat() {
           {/* Messages */}
 
           <div className="space-y-5">
-
-            {messages.map(
-              (message, index) => (
-
-                <div
-                  key={index}
-                  className={
-                    message.role === "user"
-                      ? "flex justify-end"
-                      : "flex justify-start"
-                  }
-                >
-
-                  <div
-                    className={
-                      message.role === "user"
-                        ? "max-w-[80%] rounded-2xl bg-white px-5 py-3 text-black"
-                        : "max-w-[80%] rounded-2xl border border-gray-800 bg-gray-950 px-5 py-3 text-gray-200"
-                    }
-                  >
-
-                    <p className="whitespace-pre-wrap leading-7">
-                      {message.content}
-                    </p>
-
-
-                    {/* Sources */}
-
-                    {message.sources?.length > 0 && (
-
-                      <div className="mt-4 border-t border-gray-800 pt-3">
-
-                        <p className="mb-2 text-xs font-semibold text-gray-500">
-                          Sources
-                        </p>
-
-                        <div className="space-y-1">
-
-                          {message.sources.map(
-                            (source, sourceIndex) => (
-
-                              <div
-                                key={sourceIndex}
-                                className="font-mono text-xs text-gray-500"
-                              >
-                                {source.file_path}
-                                {" "}
-                                ({source.start_line}-
-                                {source.end_line})
-                              </div>
-
-                            )
-                          )}
-
-                        </div>
-
-                      </div>
-
-                    )}
-
-                  </div>
-
-                </div>
-
-              )
-            )}
+           {messages.map((message, index) => (
+                <MessageBubble
+                    key={index}
+                    message={message}
+                />
+            ))}
 
             <div ref={messagesEndRef} />
-
           </div>
-
         </div>
 
 
         {/* Error */}
 
         {error && (
-
           <div className="mt-4 rounded-lg border border-red-900 bg-red-950/30 p-4">
-
-            <p className="text-sm text-red-400">
-              {error}
-            </p>
-
+            <p className="text-sm text-red-400">{error}</p>
           </div>
-
         )}
 
 
         {/* Input */}
-
-        <form onSubmit={handleSubmit} className="mt-4 flex gap-3">
-
-          <input
-            value={question}
-            onChange={(event) =>
-              setQuestion(
-                event.target.value
-              )
-            }
-            placeholder="Ask about your code..."
-            disabled={
-              loading ||
-              !repositoryId
-            }
-            className="flex-1 rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-white outline-none placeholder:text-gray-600"
-          />
-
-          <button
-            type="submit"
-            disabled={
-              loading ||
-              !repositoryId ||
-              !question.trim()
-            }
-            className="rounded-lg bg-white px-6 py-3 font-medium text-black disabled:opacity-50"
-          >
-            {loading
-              ? "Thinking..."
-              : "Send"}
-          </button>
-
-        </form>
-
+        <ChatInput
+          question={question}
+          setQuestion={setQuestion}
+          onSubmit={handleSubmit}
+          loading={loading}
+          repositoryId={repositoryId}
+        />
       </main>
 
     </div>

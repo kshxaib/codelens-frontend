@@ -66,6 +66,13 @@ function Dashboard() {
           >
             View My Repositories
           </button>
+
+          <button
+            onClick={() => navigate("/chat")}
+            className="rounded-lg border border-gray-700 px-4 py-2 text-sm hover:bg-gray-800"
+          >
+            CodeLens Chat
+          </button>
         </div>
       </main>
     </div>

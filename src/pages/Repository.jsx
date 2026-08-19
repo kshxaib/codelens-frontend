@@ -171,6 +171,17 @@ function Repository() {
 
                   : "Index Repository"}
               </button>
+
+              {repository.index_status === "indexed" && (
+                  <button
+                    onClick={() =>
+                      navigate(`/chat?repository=${repository.id}`)
+                    }
+                    className="rounded-lg border border-gray-700 px-5 py-3 font-medium text-white transition hover:bg-gray-800"
+                  >
+                    Open CodeLens Chat
+                  </button>
+              )}
             </div>
 
             {indexError && (
