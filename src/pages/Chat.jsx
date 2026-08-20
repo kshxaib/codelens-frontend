@@ -4,8 +4,9 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import useRepositoryStore from "../store/repositoryStore";
 
-import MessageBubble from "../components/chat/MessageBubble";
-import ChatInput from "../components/chat/ChatInput";
+import MessageBubble from "../components/MessageBubble";
+import ChatInput from "../components/ChatInput";
+import CodeViewer from "../components/CodeViewer";
 
 
 function Chat() {
@@ -18,6 +19,7 @@ function Chat() {
   const user = useAuthStore((state) => state.user);
   const repositories = useRepositoryStore((state) => state.repositories);
   const fetchRepositories = useRepositoryStore((state) => state.fetchRepositories);
+  const fetchRepositoryFile = useRepositoryStore((state) => state.fetchRepositoryFile);
 
   const [repositoryId, setRepositoryId] = useState(repositoryFromUrl || "");
 
@@ -25,7 +27,34 @@ function Chat() {
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedSource, setSelectedSource] = useState(null);
+  const [loadingSource, setLoadingSource] = useState(false);
   const messagesEndRef = useRef(null);
+
+
+  const handleCitationClick = async (source) => {
+    try {
+      setLoadingSource(true);
+
+      const file = await fetchRepositoryFile(repositoryId, source.file_id);
+
+      setSelectedSource({
+        ...file,
+
+        // Citation ki exact lines preserve karo
+        start_line: source.start_line,
+        end_line: source.end_line,
+
+        // Symbol bhi preserve karo
+        symbol: source.symbol,
+      });
+
+    } catch (err) {
+      console.error("Failed to load source:", err);
+    } finally {
+      setLoadingSource(false);
+    }
+  };
 
 
   const handleSubmit = async (event) => {
@@ -265,6 +294,7 @@ function Chat() {
                 <MessageBubble
                     key={index}
                     message={message}
+                    onCitationClick={handleCitationClick}
                 />
             ))}
 
@@ -291,6 +321,21 @@ function Chat() {
           repositoryId={repositoryId}
         />
       </main>
+
+      {/* Code Viewer Modal */}
+      {selectedSource && (
+        <CodeViewer
+          source={selectedSource}
+          onClose={() => setSelectedSource(null)}
+        />
+      )}
+
+      {/* Loading Overlay */}
+      {loadingSource && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 text-white">
+          Loading source...
+        </div>
+      )}
 
     </div>
   );

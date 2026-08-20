@@ -101,6 +101,12 @@ const useRepositoryStore = create((set) => ({
 
     return data;
   },
-}));
+
+  // Fetch repository file content for code viewer / citations
+  fetchRepositoryFile: async (repositoryId, fileId) => {
+    const { data } = await api.get(`/api/repositories/${repositoryId}/files/${fileId}`);
+    return data;
+  },
+}));  
 
 export default useRepositoryStore;

@@ -9,6 +9,7 @@ function Repository() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const [indexing, setIndexing] = useState(false);
   const [indexError, setIndexError] = useState("");
 
   const user = useAuthStore((state) => state.user);
@@ -35,12 +36,15 @@ function Repository() {
 
 
   const handleIndex = async () => {
+    setIndexing(true);
     setIndexError("");
 
     try {
       await indexRepository(Number(id));
     } catch (error) {
       setIndexError(error.response?.data?.detail || "Repository indexing failed");
+    } finally {
+      setIndexing(false);
     }
   };
 
@@ -123,17 +127,14 @@ function Repository() {
               <button
                 onClick={handleIndex}
                 disabled={
-                  repository.index_status ===
-                  "indexing"
+                  repository.index_status === "indexing" || indexing
                 }
                 className="rounded-lg bg-white px-5 py-3 font-medium text-black transition hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {repository.index_status ===
-                  "indexing"
+                {repository.index_status === "indexing" || indexing
                   ? "Indexing..."
 
-                  : repository.index_status ===
-                    "indexed"
+                  : repository.index_status === "indexed"
                   ? "Re-index Repository"
 
                   : "Index Repository"}
